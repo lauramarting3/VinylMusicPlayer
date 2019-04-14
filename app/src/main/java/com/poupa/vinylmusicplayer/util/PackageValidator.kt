@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.poupa.vinylmusicplayer.util
 
 import android.Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE

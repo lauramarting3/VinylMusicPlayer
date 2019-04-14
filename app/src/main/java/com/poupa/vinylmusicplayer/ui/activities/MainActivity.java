@@ -36,6 +36,9 @@ import com.poupa.vinylmusicplayer.ui.activities.base.AbsSlidingMusicPanelActivit
 import com.poupa.vinylmusicplayer.ui.activities.intro.AppIntroActivity;
 import com.poupa.vinylmusicplayer.ui.fragments.mainactivity.folders.FoldersFragment;
 import com.poupa.vinylmusicplayer.ui.fragments.mainactivity.library.LibraryFragment;
+import com.poupa.vinylmusicplayer.ui.viewmodels.MainActivityViewModel;
+import com.poupa.vinylmusicplayer.util.Event;
+import com.poupa.vinylmusicplayer.util.InjectorUtils;
 import com.poupa.vinylmusicplayer.util.MusicUtil;
 import com.poupa.vinylmusicplayer.util.PreferenceUtil;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -46,6 +49,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -56,6 +61,8 @@ public class MainActivity extends AbsSlidingMusicPanelActivity {
 
     private static final int LIBRARY = 0;
     private static final int FOLDERS = 1;
+
+    private MainActivityViewModel viewModel;
 
     @BindView(R.id.navigation_view)
     NavigationView navigationView;
@@ -92,6 +99,38 @@ public class MainActivity extends AbsSlidingMusicPanelActivity {
         if (!checkShowIntro()) {
             showChangelog();
         }
+
+        viewModel = ViewModelProviders
+                .of(this, InjectorUtils.provideMainActivityViewModel(this))
+                .get(MainActivityViewModel.class);
+
+        /**
+         * Observe changes to the [MainActivityViewModel.rootMediaId]. When the app starts,
+         * and the UI connects to [MusicService], this will be updated and the app will show
+         * the initial list of media items.
+         */
+        final Observer<String> rootMediaIdObserver = rootMediaId -> {
+            // Update the UI, in this case, a TextView.
+            if (rootMediaId != null) {
+                Log.d("test", rootMediaId);
+            }
+        };
+
+        viewModel.getRootMediaId().observe(this, rootMediaIdObserver);
+
+        /**
+         * Observe [MainActivityViewModel.navigateToMediaItem] for [Event]s indicating
+         * the user has requested to browse to a different [MediaItemData].
+         */
+
+        final Observer<Event<String>> navigateToMediaItemObserver = mediaId -> {
+            // Update the UI, in this case, a TextView.
+            if (mediaId != null) {
+                Log.d("test", mediaId.toString());
+            }
+        };
+
+        viewModel.getNavigateToMediaItem().observe(this, navigateToMediaItemObserver);
     }
 
     private void setMusicChooser(int key) {

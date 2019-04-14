@@ -55,3 +55,4 @@
   **[] $VALUES;
   public *;
 }
+-keep class androidx.core.app.CoreComponentFactory { *; }
